@@ -32,9 +32,11 @@ def load_data(files):
             examples.append(data.tolist())
 
             if "dog" in name:
-                labels.append(0)
+                # labels.append([0.99, 0])
+                labels.append(float(1))
             else:
-                labels.append(0.99)
+                # labels.append([0, 0.99])
+                labels.append(float(0))
         except IOError as e:
             if e.errno != errno.EISDIR:
                 print("error")
@@ -52,6 +54,7 @@ def load_data(files):
         # Need to figure out how to balance the training set
         #       ie equal number of cats and dogs
 
+        # if labels[rand][0] > 0 and data_counts[0] < balanced_examples_num:
         if labels[rand] > 0 and data_counts[0] < balanced_examples_num:
             X_train.append(examples[rand])
             y_train.append(labels[rand])
@@ -60,6 +63,7 @@ def load_data(files):
             del labels[rand]
 
             data_counts[0] += 1
+        # elif labels[rand][0] == 0 and data_counts[1] < balanced_examples_num:
         elif labels[rand] == 0 and data_counts[1] < balanced_examples_num:
             X_train.append(examples[rand])
             y_train.append(labels[rand])
@@ -76,44 +80,48 @@ def load_data(files):
             del labels[rand]
     return [X_train, X_test, y_train, y_test]
 
-data = load_data(glob.glob("./Data/pets_subset/*.jpg"))
+data = load_data(glob.glob("../Data/pets_subset/*.jpg"))
 
-X_train = np.subtract(np.asarray(data[0]), 127.0)
-X_test = np.subtract(np.asarray(data[1]), 127.0)
+X_train = np.subtract(np.asarray(data[0]), 127.5)
+X_test = np.subtract(np.asarray(data[1]), 127.5)
 y_train = np.asarray(data[2])
 y_test = np.asarray(data[3])
+
+# Does it have something to do with the labels being prepared wrong???
 
 # Use keras to preprocess each image and feed through convolutions
 # and dense nn layers
 print('Creating Model')
 model = Sequential()
-model.add(Conv2D(64,
-                 (3,3),
-                 activation = 'relu',
-                 kernel_initializer = 'he_uniform',
-                 padding = 'same',
-                 input_shape = (200, 200, 1)))
-model.add(MaxPooling2D((2,2)))
-model.add(Conv2D(32,
-                 (3,3),
-                 activation = 'relu',
-                 kernel_initializer = 'he_uniform',
-                 padding = 'same'))
-model.add(MaxPooling2D((2,2)))
+# model.add(Conv2D(64,
+#                  (3,3),
+#                  activation = 'relu',
+#                  kernel_initializer = 'he_uniform',
+#                  padding = 'same',
+#                  input_shape = (200, 200, 1)))
+# model.add(MaxPooling2D((2,2)))
+# model.add(Conv2D(32,
+#                  (3,3),
+#                  activation = 'relu',
+#                  kernel_initializer = 'he_uniform',
+#                  padding = 'same'))
+# model.add(MaxPooling2D((2,2)))
 model.add(Flatten())
-model.add(Dense(128, activation = 'relu', kernel_initializer = 'he_uniform'))
-# model.add(Dense(10, activation = 'relu', kernel_initializer = 'he_uniform'))
+model.add(Dense(20, activation = 'sigmoid', kernel_initializer = 'he_uniform'))
 model.add(Dense(1, activation = 'sigmoid'))
 print('Compiling model')
 model.compile(
-              Adam(lr = 0.5),
-              # SGD(lr = 0.1, momentum = 0.0),
+              # Adam(lr = 0.005),
+              SGD(lr = 0.05, momentum = 0.0),
               loss = 'binary_crossentropy',
               metrics = ['accuracy']
              )
-# print('Fitting data with compiled model')
-# model.fit(X_train, y_train, epochs = 5, batch_size = 10, verbose = 2)
-#
-# print('Evaluating model')
-# loss, acc = model.evaluate(X_test, y_test, verbose = 0)
-# print(loss, acc)
+print('Fitting data with compiled model')
+model.fit(X_train, y_train, epochs = 100, batch_size = 10, verbose = 2)
+
+for i in range(X_test.shape[0]):
+    print("Prediction: ", model.predict(np.expand_dims(X_train[i], axis = 0)), "  Actual: ", y_test[i])
+
+print('Evaluating model')
+loss, acc = model.evaluate(X_test, y_test, verbose = 0)
+print(loss, acc)
