@@ -100,24 +100,25 @@ model = Sequential()
 #                  padding = 'same',
 #                  input_shape = (200, 200, 1)))
 # model.add(MaxPooling2D((2,2)))
-# model.add(Conv2D(32,
-#                  (3,3),
-#                  activation = 'relu',
-#                  kernel_initializer = 'he_uniform',
-#                  padding = 'same'))
-# model.add(MaxPooling2D((2,2)))
+model.add(Conv2D(8,
+                 (10,10),
+                 activation = 'sigmoid',
+                 kernel_initializer = 'he_uniform',
+                 padding = 'same'))
+model.add(MaxPooling2D((2,2)))
 model.add(Flatten())
+# model.add(Dense(20, activation = 'sigmoid', kernel_initializer = 'he_uniform'))
 model.add(Dense(20, activation = 'sigmoid', kernel_initializer = 'he_uniform'))
 model.add(Dense(1, activation = 'sigmoid'))
 print('Compiling model')
 model.compile(
               # Adam(lr = 0.005),
-              SGD(lr = 0.05, momentum = 0.0),
+              SGD(lr = 0.01, momentum = 0.0),
               loss = 'binary_crossentropy',
               metrics = ['accuracy']
              )
 print('Fitting data with compiled model')
-model.fit(X_train, y_train, epochs = 100, batch_size = 10, verbose = 2)
+model.fit(X_train, y_train, epochs = 10, batch_size = 10, verbose = 1)
 
 for i in range(X_test.shape[0]):
     print("Prediction: ", model.predict(np.expand_dims(X_train[i], axis = 0)), "  Actual: ", y_test[i])
