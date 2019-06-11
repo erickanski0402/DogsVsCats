@@ -20,7 +20,6 @@ def query(conn, query):
     try:
         c = conn.cursor()
         c.execute(query)
-        conn.commit()
 
         if "SELECT" in query:
             results = c.fetchall()
@@ -52,13 +51,15 @@ def populate_database(conn, filepath):
                 for column in row:
                     insert_pixel_query = "INSERT INTO pixels(value_1, value_2, value_3, picture_id) VALUES(" + str(column[0]) + "," + str(column[1]) + "," + str(column[2]) + "," + str(i) + ");"
                     query(conn, insert_pixel_query)
+
+            conn.commit()
         except IOError as e:
             if e.errno != errno.EISDIR:
                 print("error")
 
 conn = create_connection("data.db")
 
-# # Table should only need to be made once
+# Table should only need to be made once
 create_pictures_table_query = "CREATE TABLE pictures(id INTEGER PRIMARY KEY AUTOINCREMENT,label BIT,picture_id SMALLINT);"
 query(conn, create_pictures_table_query)
 create_pixels_table_query = "CREATE TABLE pixels(id INTEGER PRIMARY KEY AUTOINCREMENT,value_1 TINYINT,value_2 TINYINT,value_3 TINYINT,picture_id SMALLINT FOREIGNKEY REFERENCES pictures(picture_id));"
@@ -75,4 +76,8 @@ query(conn, select_query)
 # select_query = "SELECT * FROM pixels WHERE picture_id = 1"
 # query(conn, select_query)
 
-# populate_database(conn, glob.glob("../Data/pets_subset/*.jpg"))
+# delete_query = "DELETE FROM pictures WHERE picture_id > 25000"
+# query(conn, delete_query)
+# delete_query = "DELETE FROM pixels WHERE picture_id > 25000"
+# query(conn, delete_query)
+populate_database(conn, glob.glob("../Data/DogsVsCats/train/*.jpg"))
