@@ -17,17 +17,21 @@ def create_connection(db_file):
     return None;
 
 def query(conn, query):
+    results = None
+
     try:
         c = conn.cursor()
         c.execute(query)
 
         if "SELECT" in query:
             results = c.fetchall()
-
-            for row in results:
-                print(row)
+    #
+    #         for row in results:
+    #             print(row)
     except lite.Error as e:
         print(e)
+    return results
+
 
 def populate_database(conn, filepath):
     i = 0
@@ -57,22 +61,21 @@ def populate_database(conn, filepath):
             if e.errno != errno.EISDIR:
                 print("error")
 
-conn = create_connection("data.db")
-
+# conn = create_connection("data.db")
 # Table should only need to be made once
-create_pictures_table_query = "CREATE TABLE pictures(id INTEGER PRIMARY KEY AUTOINCREMENT,label BIT,picture_id SMALLINT);"
-query(conn, create_pictures_table_query)
-create_pixels_table_query = "CREATE TABLE pixels(id INTEGER PRIMARY KEY AUTOINCREMENT,value_1 TINYINT,value_2 TINYINT,value_3 TINYINT,picture_id SMALLINT FOREIGNKEY REFERENCES pictures(picture_id));"
-query(conn, create_pixels_table_query)
+# create_pictures_table_query = "CREATE TABLE pictures(id INTEGER PRIMARY KEY AUTOINCREMENT,label BIT,picture_id SMALLINT);"
+# query(conn, create_pictures_table_query)
+# create_pixels_table_query = "CREATE TABLE pixels(id INTEGER PRIMARY KEY AUTOINCREMENT,value_1 TINYINT,value_2 TINYINT,value_3 TINYINT,picture_id SMALLINT FOREIGNKEY REFERENCES pictures(picture_id));"
+# query(conn, create_pixels_table_query)
 # insert_query = "INSERT INTO pictures(label, picture_id) VALUES(1, 1)"
 # query(conn, insert_query)
 # for i in range(10):
 #     insert_query = "INSERT INTO pixels(value_1, picture_id) VALUES(200, 1)"
 #     query(conn, insert_query)
-select_query = "SELECT count(1) FROM pictures"
-query(conn, select_query)
-select_query = "SELECT count(1) FROM pixels"
-query(conn, select_query)
+# select_query = "SELECT count(1) FROM pictures"
+# query(conn, select_query)
+# select_query = "SELECT count(1) FROM pixels"
+# query(conn, select_query)
 # select_query = "SELECT * FROM pixels WHERE picture_id = 1"
 # query(conn, select_query)
 
@@ -80,4 +83,4 @@ query(conn, select_query)
 # query(conn, delete_query)
 # delete_query = "DELETE FROM pixels WHERE picture_id > 25000"
 # query(conn, delete_query)
-populate_database(conn, glob.glob("../Data/DogsVsCats/train/*.jpg"))
+# populate_database(conn, glob.glob("../Data/DogsVsCats/train/*.jpg"))
