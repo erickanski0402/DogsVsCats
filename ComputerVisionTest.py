@@ -26,6 +26,7 @@ def load_data(files):
 
     print('Collecting pictures')
     for name in files:
+        print(name)
         try:
             img = load_img(name, color_mode = "grayscale", target_size = (200,200))
             data = img_to_array(img)
@@ -80,7 +81,7 @@ def load_data(files):
             del labels[rand]
     return [X_train, X_test, y_train, y_test]
 
-data = load_data(glob.glob("../Data/pets_subset/*.jpg"))
+data = load_data(glob.glob("../Data/DogsVsCats/pets_subset/*.jpg"))
 
 X_train = np.subtract(np.asarray(data[0]), 127.5)
 X_test = np.subtract(np.asarray(data[1]), 127.5)
