@@ -11,7 +11,9 @@ import csv
 import random
 import glob
 
-files = glob.glob("../Data/DogsVsCats/csv_sets/*.csv")
+# LABELS NOTE:
+#       Dog: 1
+#       Cat: 0
 
 def randomize_and_split(labels, examples):
     X_train = []
@@ -51,6 +53,20 @@ def randomize_and_split(labels, examples):
 
     return [np.subtract(np.asarray(X_train), 127.5), np.subtract(np.asarray(X_test), 127.5), np.asarray(y_train), np.asarray(y_test)]
 
+
+def shape_data(example):
+    shaped_example = []
+    count = 0
+
+    for i in range(200):
+        row = []
+        for j in range(200):
+            row.append([float(example[count])])
+            count += 1
+
+        shaped_example.append(row)
+    return shaped_example
+
 def build_model():
     print('Creating Model')
     model = Sequential()
@@ -66,6 +82,11 @@ def build_model():
                      activation = 'sigmoid',
                      kernel_initializer = 'he_uniform',
                      padding = 'same'))
+    model.add(Conv2D(4,
+                     (10,10),
+                     activation = 'sigmoid',
+                     kernel_initializer = 'he_uniform',
+                     padding = 'same'))
     model.add(MaxPooling2D((2,2)))
     model.add(Flatten())
     # model.add(Dense(20, activation = 'sigmoid', kernel_initializer = 'he_uniform'))
@@ -73,32 +94,21 @@ def build_model():
     model.add(Dense(1, activation = 'sigmoid'))
     print('Compiling model')
     model.compile(
-                  # Adam(lr = 0.005),
+                  # Adam(lr = 0.01),
                   SGD(lr = 0.01, momentum = 0.0),
                   loss = 'binary_crossentropy',
                   metrics = ['accuracy']
                  )
     return model
 
-def shape_data(example):
-    shaped_example = []
-    count = 0
-
-    for i in range(200):
-        row = []
-        for j in range(200):
-            row.append([float(example[count])])
-            count += 1
-
-        shaped_example.append(row)
-    return shaped_example
-
 
 model = build_model()
+files = glob.glob("../Data/DogsVsCats/grayscale_csv_sets/*.csv")
+# files = glob.glob("../Data/DogsVsCats/colored_csv_sets/*.csv")
 
 for set in files:
-    labels = []
     examples = []
+    labels = []
 
     with open(set) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter = ',')
@@ -116,14 +126,14 @@ for set in files:
     model.fit(X_train, y_train, epochs = 5, batch_size = 10, verbose = 1)
 
     loss,acc =  model.evaluate(X_test, y_test, verbose = 0)
-    print(loss, acc)
+    print("Loss:", loss, "\nAccuracy:", acc)
 
-    response = input("Train with another set?\n")
-    type(response)
-
-    if 'y' in response:
-        del labels
-        del examples
-        pass
-    else:
-        break
+    # response = input("Train with another set?\n")
+    # type(response)
+    #
+    # if 'y' in response:
+    #     del labels
+    #     del examples
+    #     pass
+    # else:
+    #     break
