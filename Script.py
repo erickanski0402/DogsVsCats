@@ -6,6 +6,7 @@ from keras.layers import Dense
 from keras.layers import Flatten
 from keras.optimizers import SGD
 from keras.optimizers import Adam
+import matplotlib.pyplot as plt
 import numpy as np
 import csv
 import random
@@ -14,6 +15,20 @@ import glob
 # LABELS NOTE:
 #       Dog: 1
 #       Cat: 0
+
+def visualize_convolutions(ncols, nrows):
+    weights = []
+    for layer in model.layers:
+        weights.append(layer.get_weights())
+
+    transposed_conv_weight_matrix = np.reshape(np.transpose(np.array(weights[0][0])), (ncols*nrows, 10, 10))
+    fig, axes = plt.subplots(ncols=ncols, nrows=nrows)
+
+    for i in range(transposed_conv_weight_matrix.shape[0]):
+        axes.ravel()[i].imshow(transposed_conv_weight_matrix[i], cmap='gray', interpolation='nearest')
+
+    plt.show()
+
 
 def randomize_and_split(labels, examples):
     X_train = []
@@ -70,20 +85,21 @@ def shape_data(example):
 def build_model():
     print('Creating Model')
     model = Sequential()
-    # model.add(Conv2D(64,
-    #                  (3,3),
+    # model.add(Conv2D(32,
+    #                  (10,10),
     #                  activation = 'relu',
     #                  kernel_initializer = 'he_uniform',
     #                  padding = 'same',
     #                  input_shape = (200, 200, 1)))
     # model.add(MaxPooling2D((2,2)))
-    model.add(Conv2D(8,
-                     (10,10),
+    model.add(Conv2D(16,
+                     (5,5),
                      activation = 'sigmoid',
                      kernel_initializer = 'he_uniform',
                      padding = 'same'))
-    model.add(Conv2D(4,
-                     (10,10),
+    model.add(MaxPooling2D(2,2))
+    model.add(Conv2D(8,
+                     (5,5),
                      activation = 'sigmoid',
                      kernel_initializer = 'he_uniform',
                      padding = 'same'))
@@ -103,7 +119,7 @@ def build_model():
 
 
 model = build_model()
-files = glob.glob("../Data/DogsVsCats/grayscale_csv_sets/*.csv")
+files = glob.glob("../Data/DogsVsCats/grayscale_csv_sets_10/*.csv")
 # files = glob.glob("../Data/DogsVsCats/colored_csv_sets/*.csv")
 
 for set in files:
@@ -127,7 +143,10 @@ for set in files:
 
     loss,acc =  model.evaluate(X_test, y_test, verbose = 0)
     print("Loss:", loss, "\nAccuracy:", acc)
+    # visualize_convolutions(4,4)
 
+# TODO: find a way to optimize the time complexity on reshaping and randomizing
+# TODO: find a way to have a timer for the user, wait 5 seconds to see if they want to continue, continue if no response comes in
     # response = input("Train with another set?\n")
     # type(response)
     #
@@ -137,3 +156,5 @@ for set in files:
     #     pass
     # else:
     #     break
+
+# After finishing processing data, figure out how to export the model for comparison with others

@@ -11,9 +11,9 @@ def convert(files):
     count = 0
 
     for i in range(25000):
-        if count % 1000 == 0:
+        if count % 2500 == 0:
             print("Opening new file")
-            file = open("../Data/DogsVsCats/colored_csv_sets/Set_" + str(count) + ".csv", "w")
+            file = open("../Data/DogsVsCats/grayscale_csv_sets_10/Set_" + str(int(count / 1000)) + ".csv", "w")
         count += 1
 
         if(data_counts[0] > data_counts[1]):
@@ -24,7 +24,7 @@ def convert(files):
             data_counts[0] += 1
 
         try:
-            img = load_img(name, target_size = (200,200))
+            img = load_img(name, color_mode = "grayscale", target_size = (200,200))
             data = img_to_array(img).tolist()
 
             example = []
